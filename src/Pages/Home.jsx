@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { HOME_BACKGROUND } from "../constants/Constants";
 import { FaPencilAlt } from "react-icons/fa";
+import ProductModal from "../components/ProductModal";
 
 const initialProducts = [];
 
 const Home = () => {
   const [products, setProducts] = useState(initialProducts);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -19,13 +20,14 @@ const Home = () => {
   const addProduct = () => {
     const newProduct = {
       id: `product-${products.length + 1}`,
-      name: "",
-      discount: "",
+      name: "zxxc",
+      discount: "cxcx",
     };
     setProducts([...products, newProduct]);
   };
 
   const renderProducts = () => {
+    console.log("Rendering products:", products);
     if (products.length > 0) {
       return products.map((product, index) => (
         <Draggable key={product.id} draggableId={product.id} index={index}>
@@ -37,22 +39,15 @@ const Home = () => {
               className="flex items-center mb-2 p-2 border border-gray-300 rounded-sm bg-white"
             >
               <span className="mr-4">{index + 1}.</span>
-              <input
-                type="text"
-                value={product.name}
-                readOnly
-                className="mr-4 flex-1"
-              />
-              <input
-                type="number"
-                value={product.discount}
-                readOnly
-                className="w-20 mr-4"
-              />
+              <span className="mr-4 flex-1">{product.name}</span>
+              <span className="mr-4 flex-1">{product.discount}</span>
               <select>
                 <option value="% Off">% Off</option>
                 <option value="$ Off">$ Off</option>
               </select>
+              <div>
+                <FaPencilAlt />
+              </div>
             </div>
           )}
         </Draggable>
@@ -81,20 +76,21 @@ const Home = () => {
   };
 
   return (
-    <div className={`p-20 bg-gray-100 h-screen`}>
+    <div className="p-20 bg-gray-100 h-screen">
       <div className="flex items-center pt-20 flex-col">
         <div className="w-[35vw]">
           <h2 className="p-2 font-semibold text-xl">Add Products</h2>
+          <div className="flex items-center mb-2 p-2 font-semibold text-xl">
+            <div className="w-full p-2 mr-1">
+              <span className="mr-4 flex-1">Product</span>
+            </div>
+            <span className="float-right p-2">Discount</span>
+          </div>
           <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="products">
+            {console.log("Droppable ID: products")}
+            <Droppable droppableId="products" type="group">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                  <div className="flex items-center mb-2 p-2 font-semibold text-xl">
-                    <div className="w-full p-2 mr-1">
-                      <span className="mr-4 flex-1">Product</span>
-                    </div>
-                    <span className="float-right p-2 ">Discount</span>
-                  </div>
                   {renderProducts()}
                   {provided.placeholder}
                 </div>
@@ -103,12 +99,16 @@ const Home = () => {
           </DragDropContext>
           <button
             className="float-right border border-green-700 p-2 rounded-md text-green-700"
-            onClick={addProduct}
+            onClick={() => setIsModalVisible(true)}
           >
             Add Product
           </button>
         </div>
       </div>
+      <ProductModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      />
     </div>
   );
 };
