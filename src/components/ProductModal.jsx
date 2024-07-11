@@ -1,15 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { IoSearchOutline } from "react-icons/io5";
+import axios from "axios";
 
 const ProductModal = ({ isVisible, onClose }) => {
   if (!isVisible) return null;
 
+  const url = import.meta.env.VITE_BASE_URL;
+  const apiAuth = import.meta.env.VITE_API_KEY;
+
   const [SearchQuery, setSearchQuery] = useState("");
+
+  const getResults = async (query) => {
+    const params = {
+      search: query,
+      page: 2,
+      limit: 1,
+    };
+    const headers = {
+      "x-api-key": apiAuth,
+    };
+    const baseUrl = "/api/task/products/search"; // Note the change here
+    try {
+      const result = await axios.get(baseUrl, { params, headers });
+      console.log("Response:", result);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       console.log(SearchQuery);
+      getResults(SearchQuery);
     }, 1000);
 
     return () => clearTimeout(timer);
