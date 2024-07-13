@@ -11,7 +11,7 @@ export default defineConfig({
         target: "http://stageapi.monkcommerce.app",
         changeOrigin: true,
         secure: false,
-        ws: true,
+        // ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
