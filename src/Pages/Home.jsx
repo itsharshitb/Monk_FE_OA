@@ -11,7 +11,7 @@ const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleDragEnd = (result) => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, type } = result;
 
     if (!destination) {
       return;
@@ -38,7 +38,7 @@ const Home = () => {
   const handleAddProducts = (selectedProducts) => {
     const productsWithShowVariants = selectedProducts.map((product) => ({
       ...product,
-      showVariants: true, // or false, depending on your preference
+      showVariants: true,
     }));
     setProducts((prevProducts) => [
       ...prevProducts,
@@ -80,8 +80,30 @@ const Home = () => {
     setProducts(products.filter((product) => product.id !== productId));
   };
 
+  const handleUpdateVariant = (productId, variantId, updatedVariant) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId
+          ? {
+              ...product,
+              variants: product.variants.map((variant) =>
+                variant.id === variantId ? updatedVariant : variant
+              ),
+            }
+          : product
+      )
+    );
+  };
+
+  const handleUpdateProduct = (productId, updatedProduct) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId ? updatedProduct : product
+      )
+    );
+  };
+
   const renderProducts = () => {
-    console.log(products);
     if (products.length > 0) {
       return products.map((product, index) => (
         <Draggable
@@ -96,12 +118,12 @@ const Home = () => {
               {...provided.dragHandleProps}
               className="draggable-item mb-2"
             >
-              <div className="flex items-center p-2 ">
+              <div className="flex items-center p-2">
                 <div className="mr-4">
                   <RxDragHandleDots2 />
                 </div>
                 <span className="mr-4">{index + 1}.</span>
-                <div className="flex-1 flex items-center space-x-2 ">
+                <div className="flex-1 flex items-center space-x-2">
                   <div className="flex flex-grow bg-white rounded-md shadow-md">
                     <input
                       type="text"
@@ -117,22 +139,37 @@ const Home = () => {
                     <input
                       type="text"
                       value={product.discount}
+                      onChange={(e) =>
+                        handleUpdateProduct(product.id, {
+                          ...product,
+                          discount: e.target.value,
+                        })
+                      }
                       className="w-full p-2 border border-none rounded-md"
                     />
                   </div>
                   <div className="w-24 shadow-md">
-                    <select className="w-full p-2 border border-none rounded-md">
+                    <select
+                      value={product.discountType}
+                      onChange={(e) =>
+                        handleUpdateProduct(product.id, {
+                          ...product,
+                          discountType: e.target.value,
+                        })
+                      }
+                      className="w-full p-2 border border-none rounded-md"
+                    >
                       <option value="% Off">% Off</option>
                       <option value="$ Off">$ Off</option>
                     </select>
                   </div>
+                  <button
+                    className="ml-2 p-2"
+                    onClick={() => handleDeleteProduct(product.id)}
+                  >
+                    <span>×</span>
+                  </button>
                 </div>
-                <button
-                  className="ml-2 p-2"
-                  onClick={() => handleDeleteProduct(product.id)}
-                >
-                  <span>×</span>
-                </button>
               </div>
               {product?.variants && product.variants.length > 0 && (
                 <div className="flex justify-end">
@@ -149,7 +186,7 @@ const Home = () => {
               {product?.variants &&
                 product?.variants.length > 0 &&
                 product?.showVariants && (
-                  <Droppable droppableId={product.id} type="variant">
+                  <Droppable droppableId={String(product.id)} type="variant">
                     {(provided) => (
                       <div
                         {...provided.droppableProps}
@@ -189,24 +226,50 @@ const Home = () => {
                                     <input
                                       type="text"
                                       value={variant.discount}
+                                      onChange={(e) =>
+                                        handleUpdateVariant(
+                                          product.id,
+                                          variant.id,
+                                          {
+                                            ...variant,
+                                            discount: e.target.value,
+                                          }
+                                        )
+                                      }
                                       className="w-full p-2 border border-none rounded-full"
                                     />
                                   </div>
                                   <div className="w-24 shadow-md rounded-full">
-                                    <select className="w-full p-2 border border-none rounded-full">
+                                    <select
+                                      value={variant.discountType}
+                                      onChange={(e) =>
+                                        handleUpdateVariant(
+                                          product.id,
+                                          variant.id,
+                                          {
+                                            ...variant,
+                                            discountType: e.target.value,
+                                          }
+                                        )
+                                      }
+                                      className="w-full p-2 border border-none rounded-full"
+                                    >
                                       <option value="% Off">% Off</option>
                                       <option value="$ Off">$ Off</option>
                                     </select>
                                   </div>
+                                  <button
+                                    className="ml-2 p-2"
+                                    onClick={() =>
+                                      handleDeleteVariant(
+                                        product.id,
+                                        variant.id
+                                      )
+                                    }
+                                  >
+                                    <span>×</span>
+                                  </button>
                                 </div>
-                                <button
-                                  className="ml-2 p-2"
-                                  onClick={() =>
-                                    handleDeleteVariant(product.id, variant.id)
-                                  }
-                                >
-                                  <span>×</span>
-                                </button>
                               </div>
                             )}
                           </Draggable>
@@ -223,7 +286,7 @@ const Home = () => {
     } else {
       return (
         <div>
-          <div className="flex items-center mb-2 p-2 " onClick={openModal}>
+          <div className="flex items-center mb-2 p-2" onClick={openModal}>
             1.&nbsp;
             <div className="w-full p-2 mr-1 bg-white relative rounded-md shadow-md">
               <span
