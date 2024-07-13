@@ -5,15 +5,16 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://stageapi.monkcommerce.app",
-        changeOrigin: true,
-        secure: false,
-        // ws: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-    },
-  },
+  //testing
+  // server: {
+  //   proxy: {
+  //     "/api": {
+  //       target: "http://stageapi.monkcommerce.app",
+  //       changeOrigin: true,
+  //       secure: false,
+  //       // ws: true,
+  //       rewrite: (path) => path.replace(/^\/api/, ""),
+  //     },
+  //   },
+  // },
 });

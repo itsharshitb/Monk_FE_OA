@@ -10,6 +10,7 @@ const Home = () => {
   const [products, setProducts] = useState(initialProducts);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  //drag ends logic here=>updating the lists
   const handleDragEnd = (result) => {
     const { destination, source, type } = result;
 
@@ -35,6 +36,7 @@ const Home = () => {
     }
   };
 
+  //new product add logic
   const handleAddProducts = (selectedProducts) => {
     const productsWithShowVariants = selectedProducts.map((product) => ({
       ...product,
@@ -46,10 +48,12 @@ const Home = () => {
     ]);
   };
 
+  //modal toggle function
   const openModal = () => {
     setIsModalVisible(true);
   };
 
+  //visibility toggle function
   const toggleVariantsVisibility = (productId) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -60,6 +64,7 @@ const Home = () => {
     );
   };
 
+  //delete funciton for variant
   const handleDeleteVariant = (productId, variantId) => {
     setProducts(
       products.map((product) => {
@@ -76,6 +81,7 @@ const Home = () => {
     );
   };
 
+  //product delete function
   const handleDeleteProduct = (productId) => {
     setProducts(products.filter((product) => product.id !== productId));
   };
@@ -103,6 +109,7 @@ const Home = () => {
     );
   };
 
+  //rendring product when null and when api call success
   const renderProducts = () => {
     if (products.length > 0) {
       return products.map((product, index) => (
@@ -183,6 +190,7 @@ const Home = () => {
                   </button>
                 </div>
               )}
+              {/* //displaying varient */}
               {product?.variants &&
                 product?.variants.length > 0 &&
                 product?.showVariants && (
@@ -274,6 +282,7 @@ const Home = () => {
                             )}
                           </Draggable>
                         ))}
+                        {/* //placeholder to maintain the size of the draggable area */}
                         {provided.placeholder}
                       </div>
                     )}
@@ -340,6 +349,7 @@ const Home = () => {
           </button>
         </div>
       </div>
+      {/* //product modal call area  */}
       <ProductModal
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}

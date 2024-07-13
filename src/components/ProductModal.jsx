@@ -47,15 +47,17 @@ const ProductModal = ({
     }
   };
 
+  //debouncing to reduce waste API calls and optimise webapp
   useEffect(() => {
     if (searchQuery.length > 0) {
       const timer = setTimeout(() => {
         getResults(searchQuery);
-      }, 1000);
+      }, 1000); //change as per requirments
       return () => clearTimeout(timer);
     }
   }, [searchQuery]);
 
+  //setting selected product to new list && selecting all the varients available
   const handleProductSelect = (product) => {
     setInternalSelectedProducts((prevSelectedProducts) => {
       let updatedSelectedProducts = [...prevSelectedProducts];
