@@ -1,0 +1,23 @@
+.custom-checkbox {
+  appearance: none;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: #06b16a; /* Custom color when checked */
+  border-color: #06b16a;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.0607 4.06066C12.6464 4.64645 12.6464 5.59619 12.0607 6.18198L6.56066 11.682C5.97487 12.2678 5.02513 12.2678 4.43934 11.682L2.43934 9.68198C1.85355 9.09619 1.85355 8.14645 2.43934 7.56066C3.02513 6.97487 3.97487 6.97487 4.56066 7.56066L6 9L9.93934 5.06066C10.5251 4.47487 11.4749 4.47487 12.0607 4.06066Z' fill='white'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.custom-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(2, 141, 48, 0.3); /* Custom focus color */
+}
