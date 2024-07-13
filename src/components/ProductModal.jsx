@@ -32,7 +32,7 @@ const ProductModal = ({
     const headers = {
       "x-api-key": apiAuth,
     };
-    const baseUrl = "/api/task/products/search";
+    const baseUrl = "http://stageapi.monkcommerce.app/task/products/search";
     try {
       const result = await axios.get(baseUrl, { params, headers });
       if (result.status === 200) {
