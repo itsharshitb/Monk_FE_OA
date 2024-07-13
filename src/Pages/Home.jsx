@@ -11,33 +11,77 @@ const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleDragEnd = (result) => {
-    if (!result.destination) return;
-    const items = Array.from(products);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setProducts(items);
-  };
+    const { destination, source, draggableId, type } = result;
 
-  const addProduct = () => {
-    const newProduct = {
-      id: `product-${products.length + 1}`,
-      name: "zxxc",
-      discount: "cxcx",
-      variants: [], // Assuming variants are stored within the product
-    };
-    setProducts([...products, newProduct]);
+    if (!destination) {
+      return;
+    }
+
+    if (type === "product") {
+      const newProducts = Array.from(products);
+      const [reorderedItem] = newProducts.splice(source.index, 1);
+      newProducts.splice(destination.index, 0, reorderedItem);
+      setProducts(newProducts);
+    } else if (type === "variant") {
+      const productIndex = products.findIndex(
+        (p) => p.id === source.droppableId
+      );
+      const newProducts = [...products];
+      const newVariants = Array.from(newProducts[productIndex].variants);
+      const [reorderedVariant] = newVariants.splice(source.index, 1);
+      newVariants.splice(destination.index, 0, reorderedVariant);
+      newProducts[productIndex].variants = newVariants;
+      setProducts(newProducts);
+    }
   };
 
   const handleAddProducts = (selectedProducts) => {
-    setProducts((prevProducts) => [...prevProducts, ...selectedProducts]);
+    const productsWithShowVariants = selectedProducts.map((product) => ({
+      ...product,
+      showVariants: true, // or false, depending on your preference
+    }));
+    setProducts((prevProducts) => [
+      ...prevProducts,
+      ...productsWithShowVariants,
+    ]);
   };
 
   const openModal = () => {
     setIsModalVisible(true);
   };
 
+  const toggleVariantsVisibility = (productId) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId
+          ? { ...product, showVariants: !product.showVariants }
+          : product
+      )
+    );
+  };
+
+  const handleDeleteVariant = (productId, variantId) => {
+    setProducts(
+      products.map((product) => {
+        if (product.id === productId) {
+          return {
+            ...product,
+            variants: product.variants.filter(
+              (variant) => variant.id !== variantId
+            ),
+          };
+        }
+        return product;
+      })
+    );
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setProducts(products.filter((product) => product.id !== productId));
+  };
+
   const renderProducts = () => {
-    console.log("Rendering products:", products);
+    console.log(products);
     if (products.length > 0) {
       return products.map((product, index) => (
         <Draggable
@@ -83,60 +127,95 @@ const Home = () => {
                     </select>
                   </div>
                 </div>
-                <button className="ml-2 p-2">
+                <button
+                  className="ml-2 p-2"
+                  onClick={() => handleDeleteProduct(product.id)}
+                >
                   <span>×</span>
                 </button>
               </div>
-              {product.variants && product.variants.length > 0 && (
-                <div className="ml-8 mt-2">
-                  {product.variants.map((variant, variantIndex) => (
-                    <div
-                      key={variant.id}
-                      className="flex items-center p-2  mt-1"
-                    >
-                      <div className="mr-4">
-                        <RxDragHandleDots2 />
-                      </div>
-                      <div className="mr-4"></div>
-                      <span className="mr-4">{variantIndex + 1}.</span>
-                      <div className="flex-1 flex items-center space-x-2">
-                        <div className="flex-grow shadow-md rounded-full">
-                          <input
-                            type="text"
-                            value={variant.name}
-                            className="w-full p-2 border rounded-full border-none"
-                            readOnly
-                          />
-                        </div>
-                        <div className="w-20 shadow-md rounded-full">
-                          <input
-                            type="text"
-                            value={variant.discount}
-                            className="w-full p-2 border border-none rounded-full"
-                          />
-                        </div>
-                        <div className="w-24 shadow-md rounded-full">
-                          <select className="w-full p-2 border border-none rounded-full">
-                            <option value="% Off">% Off</option>
-                            <option value="$ Off">$ Off</option>
-                          </select>
-                        </div>
-                      </div>
-                      {/* <button className="ml-2 p-2">
-                        <FaPencilAlt />
-                      </button> */}
-                      <button className="ml-2 p-2">
-                        <span>×</span>
-                      </button>
-                    </div>
-                  ))}
+              {product?.variants && product.variants.length > 0 && (
+                <div className="flex justify-end">
+                  <button
+                    className="text-blue-500 mr-2 text-sm"
+                    onClick={() => toggleVariantsVisibility(product.id)}
+                  >
+                    {product.showVariants
+                      ? "Hide variants ▲"
+                      : "Show variants ▼"}
+                  </button>
                 </div>
               )}
-              {product.variants && product.variants.length > 0 && (
-                <button className="text-blue-500 ml-8 mt-1">
-                  {product.showVariants ? "Hide variants ▲" : "Show variants ▼"}
-                </button>
-              )}
+              {product?.variants &&
+                product?.variants.length > 0 &&
+                product?.showVariants && (
+                  <Droppable droppableId={product.id} type="variant">
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="ml-8 mt-2"
+                      >
+                        {product.variants.map((variant, variantIndex) => (
+                          <Draggable
+                            key={variant.id}
+                            draggableId={String(variant.id)}
+                            index={variantIndex}
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="flex items-center p-2 mt-1"
+                              >
+                                <div className="mr-4">
+                                  <RxDragHandleDots2 />
+                                </div>
+                                <div className="mr-4"></div>
+                                <span className="mr-4">
+                                  {variantIndex + 1}.
+                                </span>
+                                <div className="flex-1 flex items-center space-x-2">
+                                  <div className="flex-grow shadow-md rounded-full">
+                                    <input
+                                      type="text"
+                                      value={variant.name}
+                                      className="w-full p-2 border rounded-full border-none"
+                                      readOnly
+                                    />
+                                  </div>
+                                  <div className="w-20 shadow-md rounded-full">
+                                    <input
+                                      type="text"
+                                      value={variant.discount}
+                                      className="w-full p-2 border border-none rounded-full"
+                                    />
+                                  </div>
+                                  <div className="w-24 shadow-md rounded-full">
+                                    <select className="w-full p-2 border border-none rounded-full">
+                                      <option value="% Off">% Off</option>
+                                      <option value="$ Off">$ Off</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <button
+                                  className="ml-2 p-2"
+                                  onClick={() =>
+                                    handleDeleteVariant(product.id, variant.id)
+                                  }
+                                >
+                                  <span>×</span>
+                                </button>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                )}
             </div>
           )}
         </Draggable>
@@ -170,8 +249,8 @@ const Home = () => {
   };
 
   return (
-    <div className="p-20 bg-gray-100 h-screen">
-      <div className="flex items-center pt-10 flex-col">
+    <div className="p-10 bg-gray-100 h-screen">
+      <div className="flex items-center pt-5 flex-col">
         <div className="w-[35vw]">
           <h2 className="p-2 font-semibold text-xl">Add Products</h2>
           <div className="flex items-center mb-2 p-2 font-semibold text-xl">
@@ -181,7 +260,7 @@ const Home = () => {
             <span className="float-right p-2">Discount</span>
           </div>
           <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="products" type="group">
+            <Droppable droppableId="products" type="product">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
                   {renderProducts()}

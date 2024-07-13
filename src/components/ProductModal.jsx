@@ -111,7 +111,7 @@ const ProductModal = ({
           productMap.set(item.id, {
             id: item.id,
             name: item.title,
-            discount: "0%",
+            discount: "0",
             variants: [],
           });
         }
@@ -185,6 +185,11 @@ const ProductModal = ({
                   </svg>
                   <span className="sr-only">Loading...</span>
                 </div>
+              </div>
+            )}
+            {!loading && results === null && (
+              <div className="p-4 flex justify-center items-center">
+                No Product found
               </div>
             )}
             <ul>
